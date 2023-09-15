@@ -8,12 +8,23 @@ WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 WHITE = (255, 255, 255)
 FPS = 60
 
+SCALED_WIDTH, SCALED_HEIGHT = WIDTH * 0.8, HEIGHT * 0.8
+
+# Getting hangman image from assets folder
+HANG_MAN_IMAGE = pygame.image.load(
+    os.path.join("Assets", "Hangman.png"))
+# Scale hang man image
+HANG_MAN = pygame.transform.scale(HANG_MAN_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
 pygame.display.set_caption("Hangman")
 
+CENTER_WIDTH = WIDTH/2
+CENTER_IMAGE = CENTER_WIDTH - SCALED_WIDTH/2
 
 # RGB colors and have to update the display to actually change colors
-def fill_window():
+def draw_window():
     WINDOW.fill(WHITE)
+    # Drawing hangman image into screen
+    WINDOW.blit(HANG_MAN, (CENTER_IMAGE, 0))
     pygame.display.update()
 
 # The function main will be where we run the game
@@ -27,7 +38,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-        fill_window()
+        draw_window()
          
     pygame.quit()
 
