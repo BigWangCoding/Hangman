@@ -12,6 +12,8 @@ HANG_MAN_IMAGE_2 = loadImage("Hangman2.png")
 HANG_MAN_IMAGE_1 = loadImage("Hangman1.png")
 HANG_MAN_IMAGE_0 = loadImage("Hangman0.png")
 
+BLANK = loadImage("HangmanBlank.png")
+
 lives_to_image = {
     6: HANG_MAN_IMAGE_6,
     5: HANG_MAN_IMAGE_5,
@@ -44,7 +46,7 @@ def transformHangMan(HANG_MAN_IMAGE):
     
 
 SECRET_WORD = "Hello, my name is andy"
-lenOfCharacters = len("".join([i for i in SECRET_WORD if i.isalpha()]))
+# lenOfCharacters = len("".join([i for i in SECRET_WORD if i.isalpha()]))
 WORDS = SECRET_WORD.split()
 
 FONT = "Comic Sans MS"
@@ -59,7 +61,7 @@ PositionsOfLetters = {}
 def draw_letter_box():
     WINDOW.blit(LETTER_BOX, (LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET))
 
-def draw_window(HANG_MAN):
+def draw_window(HANG_MAN, word):
     WINDOW.fill(WHITE)
     draw_letter_box()
     WINDOW.blit(HANG_MAN, (100, 0))
@@ -69,7 +71,7 @@ def draw_window(HANG_MAN):
     positionY = 100
     curWord = 1
     prevLetter = None
-    for i in SECRET_WORD:
+    for i in word:
         
         if i == " ":
             word = WORDS[curWord]
@@ -77,7 +79,7 @@ def draw_window(HANG_MAN):
             totalSpaceTaken = len(word) * lineSize + newPositionX
             
             
-            if WIDTH - totalSpaceTaken < 50:
+            if WIDTH - totalSpaceTaken < 100:
                 positionY += 50
                 prevPositionX, newPositionX = 500, 500 + lineSize
                 prevLetter = i
@@ -123,14 +125,23 @@ def insertLetter(letter, text_size, widths=None, height=None, letterBox:bool=Fal
     WINDOW.blit(text, (centerX, centerY))
     pygame.display.update()
 
+def draw_white(sizeX, sizeY, posX, poxY):
+    blank = pygame.transform.scale(BLANK, (sizeX, sizeY))
+    WINDOW.blit(blank, (posX, poxY))
+    pygame.display.update()
+
+
+
+
 def searchPositions(letter_Search):
     global lives
     found = False
     for i in PositionsOfLetters:
-        if PositionsOfLetters[i] == letter_Search:
+        if PositionsOfLetters[i].lower() == letter_Search:
             insertLetter(letter_Search, int(lineSize/2), (i[0][0], i[1][0]), i[0][1])
             found = True
     if not found:
+        draw_white(SCALED_WIDTH, SCALED_HEIGHT, 100 , 0)
         lives -= 1
         HANG_MAN = transformHangMan(lives_to_image[lives])
         WINDOW.blit(HANG_MAN, (100, 0))
@@ -143,16 +154,19 @@ def main():
     clock = pygame.time.Clock()
     run = True
     HANG_MAN = transformHangMan(HANG_MAN_IMAGE_6)
-    draw_window(HANG_MAN)
+    draw_window(HANG_MAN, SECRET_WORD)
 
-    while run and lives != 0:
+    while run:
         clock.tick(FPS)
-
+    
         key = None
         
         for event in pygame.event.get():
+            
             if event.type == pygame.QUIT:
                 run = False
+            elif not lives:
+                restart()
             elif event.type == pygame.KEYDOWN:
                 key = pygame.key.name(event.key)
                 if not key.isalpha():
@@ -163,20 +177,41 @@ def main():
             draw_letter_box()
             pygame.display.update()
         elif key == "return":
+            entered_keys.add(letter_Search)
             searchPositions(letter_Search)
             draw_letter_box()
             pygame.display.update()
         elif key == "tab" or (not key) or (key in entered_keys):
             pass
         elif key:
-            entered_keys.add(key)
+            
             draw_letter_box()
             insertLetter(key, letterBox=True, text_size=TEXT_SIZE)
                 
     pygame.quit()
 
+
+def restart():
+    global WINDOW
+    global lives
+    global PositionsOfLetters
+    global WORDS
+    global entered_keys
+
+    WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
+    # need to add random strings
+    SECRET_WORD = "This is a new string of characters"
+    HANG_MAN = transformHangMan(HANG_MAN_IMAGE_6)
+    lives = 6
+    WORDS = SECRET_WORD.split()
+    entered_keys = set()
+
+    PositionsOfLetters = {}
+    draw_window(HANG_MAN, SECRET_WORD)
+
+
 # Running main function only if the current file name is called main
 # cannot run main from another file
 if __name__ == "__main__":
     main()
-    print(entered_keys)
+    
