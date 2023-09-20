@@ -1,4 +1,5 @@
 import pygame
+import draw
 from load import loadImage
 
 pygame.font.init()
@@ -36,6 +37,7 @@ LETTER_SIZE_WIDTH = 175
 LETTER_SIZE_HEIGHT = 175
 
 
+
 LETTER_BOX = pygame.transform.scale(LETTER_BOX, (LETTER_SIZE_WIDTH, LETTER_SIZE_HEIGHT))
 LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET = 10, 10
 
@@ -59,12 +61,11 @@ lineSize = 25
 
 PositionsOfLetters = {}
 
-def draw_letter_box():
-    WINDOW.blit(LETTER_BOX, (LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET))
+
 
 def draw_window(HANG_MAN, word):
     WINDOW.fill(WHITE)
-    draw_letter_box()
+    draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
     WINDOW.blit(HANG_MAN, (100, 0))
     
     prevPositionX, newPositionX = 500, 500 + lineSize
@@ -110,28 +111,21 @@ def draw_window(HANG_MAN, word):
 
 
 letter_Search = None
-def insertLetter(letter, text_size, widths=None, height=None, letterBox:bool=False):
+def insertLetter(letter, text_size, widths=None, height=None, letterBox:bool=False, letterWidth=LETTER_SIZE_WIDTH, 
+                 letterHeight=LETTER_SIZE_HEIGHT, boxOffsetX = LETTER_BOX_X_OFFSET, boxOffsetY=LETTER_BOX_Y_OFFSET, window=WINDOW, font=FONT):
     global letter_Search
     letter_Search = letter
-
-    text = pygame.font.SysFont(FONT, text_size * 2)
+    text = pygame.font.SysFont(font, text_size * 2)
     text = text.render(letter.upper(), False, (0,0,0))
     half = text_size/2
     if letterBox: 
-        centerX = (LETTER_SIZE_WIDTH - LETTER_BOX_X_OFFSET)/2 - half
-        centerY = (LETTER_SIZE_HEIGHT - LETTER_BOX_Y_OFFSET)/2 - TEXT_SIZE
+        centerX = (letterWidth - boxOffsetX)/2 - half
+        centerY = (letterHeight - boxOffsetY)/2 - text_size
     else:
         centerX = (widths[1] + widths[0])/2  - half
         centerY = height - text_size * 2.5
-    WINDOW.blit(text, (centerX, centerY))
+    window.blit(text, (centerX, centerY))
     pygame.display.update()
-
-def draw_white(sizeX, sizeY, posX, poxY):
-    blank = pygame.transform.scale(BLANK, (sizeX, sizeY))
-    WINDOW.blit(blank, (posX, poxY))
-    pygame.display.update()
-
-
 
 
 def searchPositions(letter_Search, current_letter):
@@ -142,7 +136,7 @@ def searchPositions(letter_Search, current_letter):
             insertLetter(letter_Search, int(lineSize/2), (i[0][0], i[1][0]), i[0][1])
             found = True
     if not found:
-        draw_white(SCALED_WIDTH, SCALED_HEIGHT, 100 , 0)
+        draw.draw_white(WINDOW, SCALED_WIDTH, SCALED_HEIGHT, 100 , 0)
         lives -= 1
         
         HANG_MAN = transformHangMan(lives_to_image[lives])
@@ -174,21 +168,24 @@ def main():
                 key = pygame.key.name(event.key)
                 if not key.isalpha():
                     key = None
-                
-                print(key)
+               
         if key == "backspace":
-            draw_letter_box()
+            draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
+
             pygame.display.update()
         elif key == "return":
             entered_keys.add(letter_Search)
             searchPositions(letter_Search, letter_in_box)
-            draw_letter_box()
+            draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
+
+
             pygame.display.update()
         elif key == "tab" or (not key) or (key in entered_keys):
             pass
         elif key:
             letter_in_box = key
-            draw_letter_box()
+            draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
+
             insertLetter(key, letterBox=True, text_size=TEXT_SIZE)
             
     pygame.quit()
