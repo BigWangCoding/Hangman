@@ -28,6 +28,8 @@ lives_to_image = {
 
 WIDTH, HEIGHT = 900, 500
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
+SURFACE = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+
 WHITE = (255, 255, 255)
 FPS = 60
 
@@ -36,7 +38,7 @@ SCALED_WIDTH, SCALED_HEIGHT = WIDTH * 0.35, HEIGHT * 0.6
 LETTER_SIZE_WIDTH = 175
 LETTER_SIZE_HEIGHT = 175
 
-
+lineSize = 25
 
 LETTER_BOX = pygame.transform.scale(LETTER_BOX, (LETTER_SIZE_WIDTH, LETTER_SIZE_HEIGHT))
 LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET = 10, 10
@@ -53,15 +55,17 @@ SECRET_WORD = "Hello, my name is andy"
 WORDS = SECRET_WORD.split()
 
 FONT = "Comic Sans MS"
-TEXT_SIZE = 50
+TEXT_SIZE = lineSize * 2
+lenOfWord = len([i for i in SECRET_WORD if i.isalpha()])
+print(lenOfWord)
 
 lives = 6
-
-lineSize = 25
 
 PositionsOfLetters = {}
 
 
+def transfer():
+    return WINDOW, LETTER_SIZE_WIDTH, LETTER_SIZE_HEIGHT, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET, FONT, LETTER_BOX, lineSize, PositionsOfLetters, WORDS
 
 def draw_window(HANG_MAN, word):
     WINDOW.fill(WHITE)
@@ -111,29 +115,15 @@ def draw_window(HANG_MAN, word):
 
 
 letter_Search = None
-def insertLetter(letter, text_size, widths=None, height=None, letterBox:bool=False, letterWidth=LETTER_SIZE_WIDTH, 
-                 letterHeight=LETTER_SIZE_HEIGHT, boxOffsetX = LETTER_BOX_X_OFFSET, boxOffsetY=LETTER_BOX_Y_OFFSET, window=WINDOW, font=FONT):
-    global letter_Search
-    letter_Search = letter
-    text = pygame.font.SysFont(font, text_size * 2)
-    text = text.render(letter.upper(), False, (0,0,0))
-    half = text_size/2
-    if letterBox: 
-        centerX = (letterWidth - boxOffsetX)/2 - half
-        centerY = (letterHeight - boxOffsetY)/2 - text_size
-    else:
-        centerX = (widths[1] + widths[0])/2  - half
-        centerY = height - text_size * 2.5
-    window.blit(text, (centerX, centerY))
-    pygame.display.update()
 
-
-def searchPositions(letter_Search, current_letter):
-    global lives
+def searchPositions(letter, current_letter):
+    global lives, letter_Search, lenOfWord
     found = False
     for i in PositionsOfLetters:
-        if PositionsOfLetters[i].lower() == letter_Search:
-            insertLetter(letter_Search, int(lineSize/2), (i[0][0], i[1][0]), i[0][1])
+        if PositionsOfLetters[i].lower() == letter:
+            letter_Search = letter
+            lenOfWord -= 1
+            draw.insertLetter(letter, int(lineSize/2), (i[0][0], i[1][0]), i[0][1])
             found = True
     if not found:
         draw.draw_white(WINDOW, SCALED_WIDTH, SCALED_HEIGHT, 100 , 0)
@@ -141,19 +131,28 @@ def searchPositions(letter_Search, current_letter):
         
         HANG_MAN = transformHangMan(lives_to_image[lives])
         WINDOW.blit(HANG_MAN, (100, 0))
-        insertLetter(current_letter, letterBox=True, text_size=TEXT_SIZE)
+
+        draw.insertLetter(current_letter, letterBox=True, text_size=TEXT_SIZE)
         pygame.display.update()
         
-        
-
 entered_keys = set()
+
+def gameOver():
+    pass
+
+transparency = 120
+def drawScreen():
+    pygame.draw.rect(SURFACE, (255, 0, 0, transparency ), [0, 0, 900, 500])
 def main():
     clock = pygame.time.Clock()
     run = True
+    
     HANG_MAN = transformHangMan(HANG_MAN_IMAGE_6)
     draw_window(HANG_MAN, SECRET_WORD)
-
+    
     while run:
+        drawScreen()
+        global letter_Search
         clock.tick(FPS)
     
         key = None
@@ -162,7 +161,8 @@ def main():
             
             if event.type == pygame.QUIT:
                 run = False
-            elif not lives:
+            elif (not lives )or (not lenOfWord):
+                WINDOW.blit(SURFACE, (0,0))
                 restart()
             elif event.type == pygame.KEYDOWN:
                 key = pygame.key.name(event.key)
@@ -185,8 +185,8 @@ def main():
         elif key:
             letter_in_box = key
             draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
-
-            insertLetter(key, letterBox=True, text_size=TEXT_SIZE)
+            letter_Search = key
+            draw.insertLetter(key, letterBox=True, text_size=TEXT_SIZE)
             
     pygame.quit()
 
