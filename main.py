@@ -41,6 +41,7 @@ LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET = 10, 10
 
 pygame.display.set_caption("Hangman")
 
+letter_in_box = None
 def transformHangMan(HANG_MAN_IMAGE):
     return pygame.transform.scale(HANG_MAN_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
     
@@ -133,7 +134,7 @@ def draw_white(sizeX, sizeY, posX, poxY):
 
 
 
-def searchPositions(letter_Search):
+def searchPositions(letter_Search, current_letter):
     global lives
     found = False
     for i in PositionsOfLetters:
@@ -143,8 +144,10 @@ def searchPositions(letter_Search):
     if not found:
         draw_white(SCALED_WIDTH, SCALED_HEIGHT, 100 , 0)
         lives -= 1
+        
         HANG_MAN = transformHangMan(lives_to_image[lives])
         WINDOW.blit(HANG_MAN, (100, 0))
+        insertLetter(current_letter, letterBox=True, text_size=TEXT_SIZE)
         pygame.display.update()
         
         
@@ -178,16 +181,16 @@ def main():
             pygame.display.update()
         elif key == "return":
             entered_keys.add(letter_Search)
-            searchPositions(letter_Search)
+            searchPositions(letter_Search, letter_in_box)
             draw_letter_box()
             pygame.display.update()
         elif key == "tab" or (not key) or (key in entered_keys):
             pass
         elif key:
-            
+            letter_in_box = key
             draw_letter_box()
             insertLetter(key, letterBox=True, text_size=TEXT_SIZE)
-                
+            
     pygame.quit()
 
 
