@@ -30,3 +30,10 @@ def insertLetter(letter, text_size=25, widths=None, height=None, letterBox:bool=
     window.blit(text, (centerX, centerY))
     pygame.display.update()
 
+def drawScreen(image, transparency):
+
+    endingScreen = pygame.transform.scale(loadImage(image), (900, 500)) # size of window
+    endingScreen.set_alpha(transparency)
+    WINDOW.blit(endingScreen, (0,0))
+    pygame.display.update()
+

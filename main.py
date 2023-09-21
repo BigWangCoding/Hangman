@@ -46,8 +46,7 @@ LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET = 10, 10
 pygame.display.set_caption("Hangman")
 
 letter_in_box = None
-def transformHangMan(HANG_MAN_IMAGE):
-    return pygame.transform.scale(HANG_MAN_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
+
     
 
 SECRET_WORD = "Hello, my name is andy"
@@ -57,12 +56,13 @@ WORDS = SECRET_WORD.split()
 FONT = "Comic Sans MS"
 TEXT_SIZE = lineSize * 2
 lenOfWord = len([i for i in SECRET_WORD if i.isalpha()])
-print(lenOfWord)
 
 lives = 6
 
 PositionsOfLetters = {}
 
+def transformHangMan(HANG_MAN_IMAGE):
+    return pygame.transform.scale(HANG_MAN_IMAGE, (SCALED_WIDTH, SCALED_HEIGHT))
 
 def transfer():
     return WINDOW, LETTER_SIZE_WIDTH, LETTER_SIZE_HEIGHT, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET, FONT, LETTER_BOX, lineSize, PositionsOfLetters, WORDS
@@ -137,13 +137,11 @@ def searchPositions(letter, current_letter):
         
 entered_keys = set()
 
-def gameOver():
-    pass
+transparency = 10
 
-transparency = 120
-def drawScreen():
-    pygame.draw.rect(SURFACE, (255, 0, 0, transparency ), [0, 0, 900, 500])
+
 def main():
+    global transparency
     clock = pygame.time.Clock()
     run = True
     
@@ -151,7 +149,7 @@ def main():
     draw_window(HANG_MAN, SECRET_WORD)
     
     while run:
-        drawScreen()
+        
         global letter_Search
         clock.tick(FPS)
     
@@ -161,15 +159,21 @@ def main():
             
             if event.type == pygame.QUIT:
                 run = False
-            elif (not lives )or (not lenOfWord):
-                WINDOW.blit(SURFACE, (0,0))
-                restart()
+
             elif event.type == pygame.KEYDOWN:
                 key = pygame.key.name(event.key)
                 if not key.isalpha():
                     key = None
                
-        if key == "backspace":
+        if (not lives) or not(lenOfWord):
+
+            winLose = True if lives else False
+            if winLose:
+                draw.drawScreen("YouWon.png", transparency)
+            else:
+                draw.drawScreen("YouLost.png", transparency)
+
+        elif key == "backspace":
             draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
 
             pygame.display.update()
