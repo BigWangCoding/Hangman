@@ -138,7 +138,26 @@ def searchPositions(letter, current_letter):
 entered_keys = set()
 
 transparency = 10
+def drawButton(text):
+    global button, widthOfButton, heightOfButton, surf, centerX
+    widthOfButton = 300
+    heightOfButton = 100
+    
+    xCorner = (WIDTH/2) - (widthOfButton/2)
+    yCorner = (HEIGHT/2) - (heightOfButton/2)
 
+
+    font = pygame.font.SysFont(FONT, 50, bold=True)
+    surf = font.render(text, True, WHITE)
+    
+    button = pygame.Rect(xCorner, yCorner, widthOfButton, heightOfButton)
+
+    centerX = (widthOfButton/len(text))/2
+    centerY = (heightOfButton - 50)/2
+
+    
+
+    pygame.display.update()
 
 def main():
     global transparency
@@ -156,36 +175,53 @@ def main():
         key = None
         
         for event in pygame.event.get():
-            
             if event.type == pygame.QUIT:
                 run = False
-
+            
             elif event.type == pygame.KEYDOWN:
                 key = pygame.key.name(event.key)
                 if not key.isalpha():
                     key = None
-               
-        if (not lives) or not(lenOfWord):
+            elif ((not lives) or (not lenOfWord)) and event.type == pygame.MOUSEBUTTONDOWN:
+                if button.collidepoint(event.pos):
+                    restart()
 
+               
+        if (not lives) or (not lenOfWord):
+            
             winLose = True if lives else False
             if winLose:
                 draw.drawScreen("YouWon.png", transparency)
+                drawButton("Continue!")
             else:
                 draw.drawScreen("YouLost.png", transparency)
+                drawButton("Try Again!")
+            
+            a, b = pygame.mouse.get_pos()
+
+            if button.x <= a <= button.x + widthOfButton and button.y <= b <= button.x + heightOfButton:
+                pygame.draw.rect(WINDOW, (255, 255, 255), button)
+            else:
+                pygame.draw.rect(WINDOW, (180, 180, 180), button)
+            WINDOW.blit(surf, (button.x + centerX, button.y))
+            
+
+            
 
         elif key == "backspace":
             draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
-
             pygame.display.update()
         elif key == "return":
-            entered_keys.add(letter_Search)
-            searchPositions(letter_Search, letter_in_box)
-            draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
-
+            if letter_Search not in ["return", "backspace", "tab"]:
+                entered_keys.add(letter_Search)
+                searchPositions(letter_Search, letter_in_box)
+                draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
+            
 
             pygame.display.update()
         elif key == "tab" or (not key) or (key in entered_keys):
             pass
+
         elif key:
             letter_in_box = key
             draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
@@ -196,15 +232,12 @@ def main():
 
 
 def restart():
-    global WINDOW
-    global lives
-    global PositionsOfLetters
-    global WORDS
-    global entered_keys
+    global WINDOW, lives, PositionsOfLetters, WORDS, entered_keys, lenOfWord
 
     WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
     # need to add random strings
     SECRET_WORD = "This is a new string of characters"
+    lenOfWord = len([i for i in SECRET_WORD if i.isalpha()])
     HANG_MAN = transformHangMan(HANG_MAN_IMAGE_6)
     lives = 6
     WORDS = SECRET_WORD.split()
