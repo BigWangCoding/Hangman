@@ -45,7 +45,6 @@ LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET = 10, 10
 
 pygame.display.set_caption("Hangman")
 
-letter_in_box = None
 
     
 
@@ -116,7 +115,9 @@ def draw_window(HANG_MAN, word):
 
 letter_Search = None
 
-def searchPositions(letter, current_letter):
+def searchPositions(letter):
+    if not letter:
+        return
     global lives, letter_Search, lenOfWord
     found = False
     for i in PositionsOfLetters:
@@ -125,15 +126,16 @@ def searchPositions(letter, current_letter):
             lenOfWord -= 1
             draw.insertLetter(letter, int(lineSize/2), (i[0][0], i[1][0]), i[0][1])
             found = True
-    if not found:
+    if not found and letter.isalpha():
+        print(letter)
         draw.draw_white(WINDOW, SCALED_WIDTH, SCALED_HEIGHT, 100 , 0)
         lives -= 1
         
         HANG_MAN = transformHangMan(lives_to_image[lives])
         WINDOW.blit(HANG_MAN, (100, 0))
-
-        draw.insertLetter(current_letter, letterBox=True, text_size=TEXT_SIZE)
-        pygame.display.update()
+        
+        draw.insertLetter(letter, letterBox=True, text_size=TEXT_SIZE)
+    pygame.display.update()
         
 entered_keys = set()
 
@@ -148,15 +150,15 @@ def drawButton(text):
 
 
     font = pygame.font.SysFont(FONT, 50, bold=True)
-    surf = font.render(text, True, WHITE)
+    surf = font.render(text, True, (255,255,255))
+
+    surf = pygame.transform.scale(surf, (widthOfButton-10, heightOfButton-10))
     
     button = pygame.Rect(xCorner, yCorner, widthOfButton, heightOfButton)
 
-    centerX = (widthOfButton/len(text))/2
-    centerY = (heightOfButton - 50)/2
+    centerX = (widthOfButton/2 - surf.get_width()/2)
 
     
-
     pygame.display.update()
 
 def main():
@@ -200,21 +202,20 @@ def main():
             a, b = pygame.mouse.get_pos()
 
             if button.x <= a <= button.x + widthOfButton and button.y <= b <= button.x + heightOfButton:
-                pygame.draw.rect(WINDOW, (255, 255, 255), button)
+                pygame.draw.rect(WINDOW, (100, 100, 100), button)
             else:
-                pygame.draw.rect(WINDOW, (180, 180, 180), button)
-            WINDOW.blit(surf, (button.x + centerX, button.y))
+                pygame.draw.rect(WINDOW, (0, 0, 0), button)
+            WINDOW.blit(surf, (button.x + centerX, button.y + heightOfButton/8))
             
 
             
-
         elif key == "backspace":
             draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
             pygame.display.update()
         elif key == "return":
-            if letter_Search not in ["return", "backspace", "tab"]:
+            if letter_Search not in ["return", "backspace", "tab"] and (letter_Search not in entered_keys):
                 entered_keys.add(letter_Search)
-                searchPositions(letter_Search, letter_in_box)
+                searchPositions(letter_Search)
                 draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
             
 
@@ -223,7 +224,7 @@ def main():
             pass
 
         elif key:
-            letter_in_box = key
+
             draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
             letter_Search = key
             draw.insertLetter(key, letterBox=True, text_size=TEXT_SIZE)
