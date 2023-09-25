@@ -121,18 +121,13 @@ def searchPositions(letter):
     global lives, letter_Search, lenOfWord
     found = False
     for i in PositionsOfLetters:
-        if PositionsOfLetters[i].lower() == letter and (letter not in ["return", "backspace", "tab", None]):
+        if PositionsOfLetters[i].lower() == letter:
             letter_Search = letter
             lenOfWord -= 1
             draw.insertLetter(letter, int(lineSize/2), (i[0][0], i[1][0]), i[0][1])
             found = True
-<<<<<<< HEAD
-
-    if not found:
-=======
     if not found and letter.isalpha():
         print(letter)
->>>>>>> 53518f4dee9ddde7be7de79498a1d38f76d36698
         draw.draw_white(WINDOW, SCALED_WIDTH, SCALED_HEIGHT, 100 , 0)
         lives -= 1
         
@@ -207,17 +202,10 @@ def main():
             a, b = pygame.mouse.get_pos()
 
             if button.x <= a <= button.x + widthOfButton and button.y <= b <= button.x + heightOfButton:
-<<<<<<< HEAD
-                pygame.draw.rect(WINDOW, (180, 180, 180), button)
-            else:
-                pygame.draw.rect(WINDOW, (110, 110, 110), button)
-            WINDOW.blit(surf, (button.x + centerX, button.y))
-=======
                 pygame.draw.rect(WINDOW, (100, 100, 100), button)
             else:
                 pygame.draw.rect(WINDOW, (0, 0, 0), button)
             WINDOW.blit(surf, (button.x + centerX, button.y + heightOfButton/8))
->>>>>>> 53518f4dee9ddde7be7de79498a1d38f76d36698
             
 
             
@@ -226,18 +214,14 @@ def main():
             draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
             pygame.display.update()
         elif key == "return":
-<<<<<<< HEAD
-            if letter_Search not in ["return", "backspace", "tab"] and letter_Search:
-=======
             if letter_Search not in ["return", "backspace", "tab"] and (letter_Search not in entered_keys):
->>>>>>> 53518f4dee9ddde7be7de79498a1d38f76d36698
                 entered_keys.add(letter_Search)
                 searchPositions(letter_Search)
                 draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
             
 
             pygame.display.update()
-        elif key == "tab" or (not key) or (key in entered_keys) or (letter_Search == "backspace"):
+        elif key == "tab" or (not key) or (key in entered_keys):
             pass
 
         elif key:
@@ -269,4 +253,3 @@ def restart():
 # cannot run main from another file
 if __name__ == "__main__":
     main()
-    
