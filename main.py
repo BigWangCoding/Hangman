@@ -1,7 +1,8 @@
 import pygame
 import draw
 from load import loadImage
-
+from random import randint
+import json
 pygame.font.init()
 
 LETTER_BOX = loadImage("Enter-letter-box.png")
@@ -66,6 +67,8 @@ def transformHangMan(HANG_MAN_IMAGE):
 def transfer():
     return WINDOW, LETTER_SIZE_WIDTH, LETTER_SIZE_HEIGHT, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET, FONT, LETTER_BOX, lineSize, PositionsOfLetters, WORDS
 
+SPECIAL_CHARACTERS = [",", ".", "!", "?", ";", "'", '"', "*", "(", ")", ":", "/"]
+
 def draw_window(HANG_MAN, word):
     WINDOW.fill(WHITE)
     draw.draw_letter_box(WINDOW, LETTER_BOX, LETTER_BOX_X_OFFSET, LETTER_BOX_Y_OFFSET)
@@ -96,9 +99,12 @@ def draw_window(HANG_MAN, word):
             continue
 
             
-        elif i == ",":
+        elif i in SPECIAL_CHARACTERS:
+
             text = pygame.font.SysFont(FONT, TEXT_SIZE)
-            text = text.render(",", False, (0,0,0))
+            text = text.render(i, False, (0,0,0))
+
+
             WINDOW.blit(text, (prevPositionX - 10, positionY - 50))
 
         else: 
@@ -231,14 +237,22 @@ def main():
             draw.insertLetter(key, letterBox=True, text_size=TEXT_SIZE)
             
     pygame.quit()
+def get_word():
+    with open("database.json", "r") as database:
+        data = json.load(database)
+        indexNumber = randint(0, len(data) - 1)
+
+        word = data[str(indexNumber)]
+    return word
+        
 
 
 def restart():
-    global WINDOW, lives, PositionsOfLetters, WORDS, entered_keys, lenOfWord
+    global WINDOW, lives, PositionsOfLetters, WORDS, entered_keys, lenOfWord, SECRET_WORD
 
     WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
-    # need to add random strings
-    SECRET_WORD = "This is a new string of characters"
+        
+    SECRET_WORD = get_word()
     lenOfWord = len([i for i in SECRET_WORD if i.isalpha()])
     HANG_MAN = transformHangMan(HANG_MAN_IMAGE_6)
     lives = 6
