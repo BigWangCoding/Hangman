@@ -49,7 +49,7 @@ pygame.display.set_caption("Hangman")
 
     
 
-SECRET_WORD = "Hello, my name is andy"
+SECRET_WORD = "Hello my name is andy"
 # lenOfCharacters = len("".join([i for i in SECRET_WORD if i.isalpha()]))
 WORDS = SECRET_WORD.split()
 
@@ -104,8 +104,10 @@ def draw_window(HANG_MAN, word):
             text = pygame.font.SysFont(FONT, TEXT_SIZE)
             text = text.render(i, False, (0,0,0))
 
-
-            WINDOW.blit(text, (prevPositionX - 10, positionY - 50))
+            if i == "(":
+                WINDOW.blit(text, (prevPositionX + 20, positionY - 50))
+            else:
+                WINDOW.blit(text, (prevPositionX, positionY - 50))
 
         else: 
             startPoint = (prevPositionX, positionY)
@@ -203,6 +205,17 @@ def main():
                 drawButton("Continue!")
             else:
                 draw.drawScreen("YouLost.png", transparency)
+                
+                answer = f"The word was: {SECRET_WORD}"
+                size = 20
+                lengthOfWord = len(answer)/2
+
+                xStart = (WIDTH/2) - (lengthOfWord * size/2)
+                y = HEIGHT - size * 2
+                text = pygame.font.SysFont(FONT, size=size)
+                text = text.render(answer.upper(), False, (0,0,0))
+                WINDOW.blit(text, (xStart, y))
+
                 drawButton("Try Again!")
             
             a, b = pygame.mouse.get_pos()
